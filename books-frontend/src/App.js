@@ -7,6 +7,8 @@ import Boilerplate from './utilities/Boilerplate';
 import LandingPage from './pages/LandingPage';
 import NotFound from './pages/NotFound';
 import AddBook from './pages/AddBook';
+import BookPage from './pages/BookPage';
+import EditBook from './pages/EditBook';
 
 import theme from './utilities/theme';
 
@@ -19,7 +21,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Boilerplate />}>
             <Route path="" element={<LandingPage />} />
-            <Route path="/add_book" element={<AddBook />} />
+            <Route path="/books/:id" element={<BookPage />} />
+            <Route path="/books/:id/edit" element={<EditBook />} />
+            <Route path="/add-book" element={<AddBook />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

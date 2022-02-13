@@ -1,28 +1,53 @@
-import { useState } from 'react';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
-import { FormControl, Box, TextField, Button, bottomNavigationClasses } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { FormControl, Box, TextField, Button, Grid } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import FormErrorAlert from '../utilities/FormErrorAlert';
 
-const AddBookForm = () => {
+const EditBookForm = () => {
   const navigate = useNavigate();
-  const [formValues, setFormValues] = useState({
-    title: '',
+  const [bookData, setBookData] = useState({
     author: '',
-    publicationYear: null,
     isbn: '',
+    publicationyear: '',
     synopsis: '',
+    title: '',
   });
+  const [formValues, setFormValues] = useState({
+    author: '',
+    isbn: '',
+    publicationyear: '',
+    synopsis: '',
+    title: '',
+  });
+
+  const { id: bookId } = useParams();
+
+  const handleDelete = async () => {
+    try {
+      const url = `/books/${bookId}`;
+      const requestOptions = { method: 'DELETE' };
+      await fetch(url, requestOptions);
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    (async () => {
+      const url = `/api/books/${bookId}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const { author, isbn, publicationyear, synopsis, title } = data.payload;
+
+      setBookData({ author, isbn, publicationyear, synopsis, title });
+    })();
+  }, []);
+
+  useEffect(() => setFormValues(bookData), [bookData]);
 
   const [formErrors, setFormErrors] = useState({});
   const handleFormInputChange = (event) => {
     setFormValues({ ...formValues, [event.target.name]: event.target.value });
-  };
-
-  const handleDatePickerChange = (publicationYear) => {
-    setFormValues({ ...formValues, publicationYear });
   };
 
   const checkIfBookExists = async () => {
@@ -42,18 +67,21 @@ const AddBookForm = () => {
     if (!formValues.author) {
       errors.author = 'Book author is required.';
     }
-    if (bookExists) {
+    if (bookExists && !(bookData.author === formValues.author && bookData.title === formValues.title)) {
       errors.title = 'A book with the given title and author already exists.';
       errors.author = 'A book with the given title and author already exists.';
     }
-    if (!formValues.publicationYear) {
-      errors.publicationYear = 'Year of publication is required.';
+    if (!formValues.publicationyear) {
+      errors.publicationyear = 'Year of publication is required.';
     }
-    if (!parseInt(formValues.publicationYear, 10)) {
-      errors.publicationYear = 'Year of publication is invalid.';
+    if (!parseInt(formValues.publicationyear, 10)) {
+      errors.publicationyear = 'Year of publication is invalid.';
     }
     if (!formValues.isbn) {
       errors.isbn = 'ISBN is required.';
+    }
+    if (!formValues.synopsis) {
+      errors.isbn = 'Synopsis is required.';
     }
 
     if (Object.keys(errors).length) {
@@ -63,11 +91,11 @@ const AddBookForm = () => {
   };
 
   const submitToDB = async () => {
-    const { title, author, publicationYear, isbn, synopsis } = formValues;
+    const { title, author, publicationyear, isbn, synopsis } = formValues;
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author, publicationYear, isbn, synopsis }),
+      body: JSON.stringify({ title, author, publicationyear, isbn, synopsis }),
     };
     const url = '/api/books';
     const response = await fetch(url, requestOptions);
@@ -137,18 +165,18 @@ const AddBookForm = () => {
 
         <TextField
           required
-          value={formValues.publicationYear}
-          id="publicationYear"
+          value={formValues.publicationyear}
+          id="publicationyear"
           label="Book publication year"
-          name="publicationYear"
+          name="publicationyear"
           autoComplete="Book publication year"
           autoFocus
           onChange={handleFormInputChange}
           margin="normal"
           fullWidth
-          error={!!formErrors.publicationYear}
+          error={!!formErrors.publicationyear}
         />
-        {formErrors.publicationYear && <FormErrorAlert error={formErrors.publicationYear} />}
+        {formErrors.publicationyear && <FormErrorAlert error={formErrors.publicationyear} />}
 
         <TextField
           required
@@ -166,13 +194,21 @@ const AddBookForm = () => {
           error={!!formErrors.synopsis}
         />
         {formErrors.synopsis && <FormErrorAlert error={formErrors.synopsis} />}
-
-        <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
-          Submit a new book!
-        </Button>
+        <Grid container spacing={2}>
+          <Grid item md={6}>
+            <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
+              Edit {`'${bookData.title}'`}
+            </Button>
+          </Grid>
+          <Grid item md={6}>
+            <Button color="error" variant="contained" onClick={handleDelete} fullWidth sx={{ mt: 3 }}>
+              Delete {`'${bookData.title}'`}
+            </Button>
+          </Grid>
+        </Grid>
       </FormControl>
     </Box>
   );
 };
 
-export default AddBookForm;
+export default EditBookForm;
