@@ -1,5 +1,3 @@
-const NotFound = () => {
-   return null;
-};
+const NotFound = () => null;
 
 export default NotFound;

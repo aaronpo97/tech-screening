@@ -1,4 +1,4 @@
-import { StrictMode, useReducer } from 'react';
+import { StrictMode } from 'react';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
