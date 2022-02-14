@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { useState } from 'react';
 import { FormControl, Box, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ const AddBookForm = () => {
   const [formValues, setFormValues] = useState({
     title: '',
     author: '',
-    publicationYear: null,
+    publication_year: '',
     isbn: '',
     synopsis: '',
   });
@@ -39,11 +40,11 @@ const AddBookForm = () => {
       errors.title = 'A book with the given title and author already exists.';
       errors.author = 'A book with the given title and author already exists.';
     }
-    if (!formValues.publicationYear) {
-      errors.publicationYear = 'Year of publication is required.';
+    if (!formValues.publication_year) {
+      errors.publication_year = 'Year of publication is required.';
     }
-    if (!parseInt(formValues.publicationYear, 10)) {
-      errors.publicationYear = 'Year of publication is invalid.';
+    if (!parseInt(formValues.publication_year, 10)) {
+      errors.publication_year = 'Year of publication is invalid.';
     }
     if (!formValues.isbn) {
       errors.isbn = 'ISBN is required.';
@@ -56,11 +57,17 @@ const AddBookForm = () => {
   };
 
   const submitToDB = async () => {
-    const { title, author, publicationYear, isbn, synopsis } = formValues;
+    const { title, author, publication_year, isbn, synopsis } = formValues;
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author, publicationYear, isbn, synopsis }),
+      body: JSON.stringify({
+        title,
+        author,
+        publication_year: parseInt(publication_year, 10),
+        isbn,
+        synopsis,
+      }),
     };
     const url = '/api/books';
     const response = await fetch(url, requestOptions);
@@ -130,18 +137,18 @@ const AddBookForm = () => {
 
         <TextField
           required
-          value={formValues.publicationYear}
-          id="publicationYear"
+          value={formValues.publication_year}
+          id="publication_year"
           label="Book publication year"
-          name="publicationYear"
+          name="publication_year"
           autoComplete="Book publication year"
           autoFocus
           onChange={handleFormInputChange}
           margin="normal"
           fullWidth
-          error={!!formErrors.publicationYear}
+          error={!!formErrors.publication_year}
         />
-        {formErrors.publicationYear && <FormErrorAlert error={formErrors.publicationYear} />}
+        {formErrors.publication_year && <FormErrorAlert error={formErrors.publication_year} />}
 
         <TextField
           required

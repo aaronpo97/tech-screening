@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import Boilerplate from './utilities/Boilerplate';
+import Boilerplate from './components/utilities/Boilerplate';
 import LandingPage from './pages/LandingPage';
 import NotFound from './pages/NotFound';
 import AddBook from './pages/AddBook';

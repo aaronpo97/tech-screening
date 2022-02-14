@@ -7,6 +7,7 @@ const paginate = require('../utilities/data-organization/paginate.js');
 module.exports.getAllBooks = async (req, res, next) => {
   try {
     const booksQuery = await pool.query('SELECT * FROM books');
+    console.log(booksQuery);
     const allBooks = booksQuery.rows;
     const { page = '1', size = '5' } = req.query;
 
@@ -26,11 +27,11 @@ module.exports.getAllBooks = async (req, res, next) => {
 
 module.exports.createNewBook = async (req, res, next) => {
   try {
-    const { title, author, isbn, synopsis, publicationYear } = req.body;
+    const { title, author, isbn, synopsis, publication_year } = req.body;
 
-    const insertQuery = await pool.query(
+    await pool.query(
       `INSERT INTO books (title, author, isbn, synopsis, publication_year) VALUES ($1, $2, $3, $4, $5)`,
-      [title, author, isbn, synopsis, publicationYear],
+      [title, author, isbn, synopsis, publication_year],
     );
 
     const newBook = await pool.query(`SELECT * FROM books WHERE title=$1 AND author=$2`, [title, author]);
@@ -49,7 +50,7 @@ module.exports.viewBook = async (req, res, next) => {
     const bookQuery = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
 
     if (!bookQuery.rows.length) {
-      throw new ServerError('Cannot find that book.', 200);
+      throw new ServerError('Cannot find that book.', 404);
     }
 
     next(new SuccessResponse(`Viewing the book with the id: ${id}.`, 200, bookQuery.rows[0]));
@@ -61,10 +62,10 @@ module.exports.viewBook = async (req, res, next) => {
 module.exports.editBook = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, author, isbn, synopsis, publicationYear } = req.body;
+    const { title, author, isbn, synopsis, publication_year } = req.body;
     const updateQuery = await pool.query(
       'UPDATE books SET title=$1, author=$2, isbn=$3, synopsis=$4, publication_year=$5 WHERE ID=$6',
-      [title, author, isbn, synopsis, publicationYear, id],
+      [title, author, isbn, synopsis, publication_year, id],
     );
 
     if (!updateQuery.rowCount) {
@@ -72,9 +73,12 @@ module.exports.editBook = async (req, res, next) => {
     }
 
     const editedBookQuery = await pool.query('SELECT * FROM books WHERE id=$1', [id]);
-    console.log(editedBookQuery.rows[0]);
 
-    next(new SuccessResponse(`Edited the book with the id: ${id}.`, 200, { editedCount: query.rowCount }));
+    next(
+      new SuccessResponse(`Edited the book with the id: ${id}.`, 200, {
+        editedBook: editedBookQuery.rows[0],
+      }),
+    );
   } catch (error) {
     next(error);
   }

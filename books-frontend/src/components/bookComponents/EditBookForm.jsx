@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { useEffect, useState } from 'react';
 import { FormControl, Box, TextField, Button, Grid } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,25 +9,29 @@ const EditBookForm = () => {
   const [bookData, setBookData] = useState({
     author: '',
     isbn: '',
-    publicationyear: '',
+    publication_year: '',
     synopsis: '',
     title: '',
+    id: '',
   });
   const [formValues, setFormValues] = useState({
     author: '',
     isbn: '',
-    publicationyear: '',
+    publication_year: '',
     synopsis: '',
     title: '',
+    id: '',
   });
 
   const { id: bookId } = useParams();
 
   const handleDelete = async () => {
     try {
-      const url = `/books/${bookId}`;
+      const url = `/api/books/${bookId}`;
       const requestOptions = { method: 'DELETE' };
-      await fetch(url, requestOptions);
+      const response = await fetch(url, requestOptions);
+
+      if (response.status !== 200) return;
       navigate('/');
     } catch (error) {
       console.error(error);
@@ -37,9 +42,9 @@ const EditBookForm = () => {
       const url = `/api/books/${bookId}`;
       const response = await fetch(url);
       const data = await response.json();
-      const { author, isbn, publicationyear, synopsis, title } = data.payload;
+      const { author, isbn, publication_year, synopsis, title, id } = data.payload;
 
-      setBookData({ author, isbn, publicationyear, synopsis, title });
+      setBookData({ author, isbn, publication_year, synopsis, title, id });
     })();
   }, []);
 
@@ -71,11 +76,11 @@ const EditBookForm = () => {
       errors.title = 'A book with the given title and author already exists.';
       errors.author = 'A book with the given title and author already exists.';
     }
-    if (!formValues.publicationyear) {
-      errors.publicationyear = 'Year of publication is required.';
+    if (!formValues.publication_year) {
+      errors.publication_year = 'Year of publication is required.';
     }
-    if (!parseInt(formValues.publicationyear, 10)) {
-      errors.publicationyear = 'Year of publication is invalid.';
+    if (!parseInt(formValues.publication_year, 10)) {
+      errors.publication_year = 'Year of publication is invalid.';
     }
     if (!formValues.isbn) {
       errors.isbn = 'ISBN is required.';
@@ -91,16 +96,23 @@ const EditBookForm = () => {
   };
 
   const submitToDB = async () => {
-    const { title, author, publicationyear, isbn, synopsis } = formValues;
+    const { title, author, publication_year, isbn, synopsis, id } = formValues;
     const requestOptions = {
-      method: 'POST',
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author, publicationyear, isbn, synopsis }),
+      body: JSON.stringify({
+        title,
+        author,
+        publication_year: parseInt(publication_year, 10),
+        isbn,
+        synopsis,
+        id,
+      }),
     };
-    const url = '/api/books';
+    const url = `/api/books/${bookId}`;
     const response = await fetch(url, requestOptions);
     const data = await response.json();
-    return data.payload;
+    return data.payload.editedBook;
   };
 
   const handleRedirect = (payload) => {
@@ -165,18 +177,18 @@ const EditBookForm = () => {
 
         <TextField
           required
-          value={formValues.publicationyear}
-          id="publicationyear"
+          value={formValues.publication_year}
+          id="publication_year"
           label="Book publication year"
-          name="publicationyear"
+          name="publication_year"
           autoComplete="Book publication year"
           autoFocus
           onChange={handleFormInputChange}
           margin="normal"
           fullWidth
-          error={!!formErrors.publicationyear}
+          error={!!formErrors.publication_year}
         />
-        {formErrors.publicationyear && <FormErrorAlert error={formErrors.publicationyear} />}
+        {formErrors.publication_year && <FormErrorAlert error={formErrors.publication_year} />}
 
         <TextField
           required
@@ -194,14 +206,14 @@ const EditBookForm = () => {
           error={!!formErrors.synopsis}
         />
         {formErrors.synopsis && <FormErrorAlert error={formErrors.synopsis} />}
-        <Grid container spacing={2}>
-          <Grid item md={6}>
-            <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={6}>
+            <Button type="submit" variant="contained" fullWidth>
               Edit {`'${bookData.title}'`}
             </Button>
           </Grid>
-          <Grid item md={6}>
-            <Button color="error" variant="contained" onClick={handleDelete} fullWidth sx={{ mt: 3 }}>
+          <Grid item xs={12} sm={6}>
+            <Button color="error" variant="contained" onClick={handleDelete} fullWidth>
               Delete {`'${bookData.title}'`}
             </Button>
           </Grid>
