@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Box, Typography, Button } from '@mui/material';
-import ms from 'ms';
 
 const BookPage = () => {
   const navigate = useNavigate();

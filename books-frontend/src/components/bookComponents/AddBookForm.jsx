@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
-import { FormControl, Box, TextField, Button, bottomNavigationClasses } from '@mui/material';
+import { FormControl, Box, TextField, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import FormErrorAlert from '../utilities/FormErrorAlert';
 
@@ -19,10 +16,6 @@ const AddBookForm = () => {
   const [formErrors, setFormErrors] = useState({});
   const handleFormInputChange = (event) => {
     setFormValues({ ...formValues, [event.target.name]: event.target.value });
-  };
-
-  const handleDatePickerChange = (publicationYear) => {
-    setFormValues({ ...formValues, publicationYear });
   };
 
   const checkIfBookExists = async () => {
